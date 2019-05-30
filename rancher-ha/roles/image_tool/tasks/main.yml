@@ -1,0 +1,15 @@
+- import_role:
+    name: workspace
+
+# Install image related command
+- name: Copy image load script to bin path
+  get_url:
+    url:  https://github.com/rancher/rancher/releases/download/{{ rancher_version }}/rancher-load-images.sh
+    dest: "{{ rancher_bin }}/rancher-load-images"
+    mode: 0744
+
+- name: Copy image save script to bin path
+  get_url:
+    url:  https://github.com/rancher/rancher/releases/download/{{ rancher_version }}/rancher-save-images.sh
+    dest: "{{ rancher_bin }}/rancher-save-images"
+    mode: 0744

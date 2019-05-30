@@ -1,0 +1,76 @@
+---
+
+## ansible-playbook -e 'restore_certs_filepath=/home/dkuser/ansible_rancher_setup/snapshots/pki_snapshot_2019-01-11T02:40:30Z' -e 'restore_etcd_filepath=/home/dkuser/ansible_rancher_setup/snapshots/etcd_snapshot_2019-01-11T02:40:30Z' -i inventories/test/rancher.yml playbooks/restore_k8s.yml --ask-vault-pass ##
+
+- name: "Check input variable"
+  hosts: "{{ controller_host | default('localhost') }}"
+  gather_facts: false
+  tasks:
+    - fail:
+        msg:
+          - restore_etcd_filepath should be defined
+      when: restore_etcd_filepath is not defined
+    - fail:
+        msg:
+          - restore_certs_filepath should be defined
+      when: restore_certs_filepath is not defined
+
+- name: Purge legacy Docker data
+  tags:
+    - restore_purge_docker
+  hosts: master
+  gather_facts: false
+  tasks:
+    - include: roles/cluster/tasks/purge_docker.yml
+
+- name: Restore Kubernetes cluster with 1 node
+  hosts: "{{ controller_host | default('localhost') }}"
+  gather_facts: false
+  vars_files:
+    - group_vars/vault/docker_registry_secret
+  environment:
+    PATH: "{{ rancher_bin }}:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/opt/puppetlabs/bin"
+  tags:
+    - restore_one_node_cluster
+
+  roles:
+    - cluster
+    - rke
+    - ssh_key
+    - rke_state
+    - kube_state
+
+  tasks:
+    - include: roles/cluster/tasks/restore_k8s.yml
+
+- name: Bring up all nodes
+  gather_facts: false
+  hosts: "{{ controller_host | default('localhost') }}"
+  tags:
+    - bring_up_all_nodes
+  vars:
+    - host_group: master
+    - rancher_cluster_config_filename: rancher_cluster.yml
+  vars_files:
+    - group_vars/vault/docker_registry_secret
+  environment:
+    PATH: "{{ rancher_bin }}:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/opt/puppetlabs/bin"
+
+  tasks:
+    - include: roles/cluster/tasks/install_k8s.yml
+
+- hosts: "{{ controller_host | default('localhost') }}"
+  gather_facts: false
+  environment:
+    PATH: "{{ rancher_bin }}:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/opt/puppetlabs/bin"
+
+  tasks:
+  - include: roles/cluster/tasks/verify_status_k8s.yml
+
+- hosts: master
+  gather_facts: false
+  environment:
+    PATH: "{{ rancher_bin }}:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/opt/puppetlabs/bin"
+
+  tasks:
+  - include: roles/cluster/tasks/verify_status_etcd.yml

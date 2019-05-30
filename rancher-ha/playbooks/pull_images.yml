@@ -1,0 +1,53 @@
+---
+##  ansible-playbook playbooks/pull_images.yml --ask-vault-pass
+
+- name: Pull images for Internet
+  hosts: "{{ controller_host | default('localhost') }}"
+  gather_facts: false
+  vars_files:
+    - group_vars/vault/docker_registry_secret
+  environment:
+    PATH: "{{ rancher_bin }}:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/opt/puppetlabs/bin"
+
+  roles:
+    - rke
+    - helm
+    - image_tool
+
+  tasks:
+    - name: Login Artifactory
+      # Set up registry credentials
+      command: docker login -u "{{ vault_docker_registry_user }}" -p "{{ vault_docker_registry_password }}" "{{ docker_registry }}"
+
+    - name: Download rancher-images.txt
+      get_url:
+        url:  https://github.com/rancher/rancher/releases/download/{{ rancher_version }}/rancher-images.txt
+        dest: "{{ image_workspace }}/rancher-images.txt"
+
+    - name: Generate image list
+      shell: |
+          set -e
+          rke config --system-images | grep -v "Generating images list" >> rancher-images.txt
+          /usr/bin/sort -u rancher-images.txt -o rancher-images.txt
+      args:
+        chdir: "{{ image_workspace }}"
+
+    - name: Add cert-manager image into list
+      shell: |
+          set -e
+          helm init --client-only
+          helm repo update
+          helm fetch stable/cert-manager --version {{ cert_manager_version }}
+          helm template ./cert-manager-{{ cert_manager_version }}.tgz | grep -oP '(?<=image: ").*(?=")' >> rancher-images.txt
+      args:
+        chdir: "{{ image_workspace }}"
+
+    - name: Download Rancher images
+      shell: rancher-save-images --image-list rancher-images.txt
+      args:
+        chdir: "{{ image_workspace }}"
+
+    - name: Load Rancher images and push into Artifactory
+      shell: rancher-load-images --image-list rancher-images.txt --registry "{{ docker_registry }}/infra"
+      args:
+        chdir: "{{ image_workspace }}"

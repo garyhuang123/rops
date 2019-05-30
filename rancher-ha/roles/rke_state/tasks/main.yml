@@ -1,0 +1,11 @@
+# Place rkestate file
+- name: Stat rkestate file
+  stat: path={{ cluster_rkestate_file }}
+  register: last_rkestate
+
+- name: Copy the last rancher_cluster.rkestate to ansible workspace
+  copy:
+    src: "{{ cluster_rkestate_file }}"
+    dest: "{{ rancher_workspace }}/rancher_cluster.rkestate"
+  when: last_rkestate.stat.exists
+

@@ -1,0 +1,51 @@
+---
+
+## ansible-playbook -i inventories/test/rancher.yml playbooks/install.yml --ask-vault-pass ##
+## ansible-playbook -i inventories/test/rancher.yml install.yml --tags "install_rancher_console" ##
+
+- name: Install Rancher Cluster
+  hosts: "{{ controller_host | default('localhost') }}"
+  gather_facts: false
+  vars:
+    - host_group: master
+    - rancher_cluster_config_filename: rancher_cluster.yml
+  vars_files:
+    - group_vars/vault/docker_registry_secret
+  environment:
+    PATH: "{{ rancher_bin }}:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/opt/puppetlabs/bin"
+
+  roles:
+    - rke
+    - helm
+    - image_tool
+    - kube_tool
+    - ssh_key
+
+  tasks:
+  - include: roles/cluster/tasks/install_k8s.yml
+
+- hosts: "{{ controller_host | default('localhost') }}"
+  gather_facts: false
+  environment:
+    PATH: "{{ rancher_bin }}:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/opt/puppetlabs/bin"
+
+  tasks:
+  - include: roles/cluster/tasks/verify_status_k8s.yml
+
+- hosts: "{{ controller_host | default('localhost') }}"
+  gather_facts: false
+  environment:
+    PATH: "{{ rancher_bin }}:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/opt/puppetlabs/bin"
+
+  tasks:
+  - include: roles/cluster/tasks/verify_status_etcd.yml
+
+- hosts: "{{ controller_host | default('localhost') }}"
+  gather_facts: false
+  environment:
+    PATH: "{{ rancher_bin }}:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/opt/puppetlabs/bin"
+  tags:
+    - "install_rancher_console"
+  tasks:
+    - include: roles/cluster/tasks/install_console.yml
+    - include: roles/cluster/tasks/verify_status_rancher_console.yml

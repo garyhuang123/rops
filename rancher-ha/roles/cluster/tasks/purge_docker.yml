@@ -1,0 +1,81 @@
+---
+
+#- name: Disable docker service
+#  become: yes
+#  become_method: sudo
+#  notify: disable docker
+
+- name: Stat docker.service
+  become: yes
+  stat: path=/usr/lib/systemd/system/docker.service
+  register: sys_docker_stat
+
+- name: Ensure Rancher workspace dir
+  file:
+    path: "{{ rancher_workspace }}"
+    state: directory
+
+- name: Disable docker service
+  become: yes
+  shell: |
+      mv -n /usr/lib/systemd/system/docker.service {{ rancher_workspace }}/docker.service
+  when: sys_docker_stat.stat.exists
+
+- name: Reboot machine
+  become: yes
+  shell: 'sleep 1 && /sbin/shutdown -r now "Reboot triggered by Ansible" && sleep 1'
+  async: 1
+  poll: 1
+  ignore_errors: true
+
+- name: Wait for the reboot to complete if there was a change
+  wait_for_connection:
+    connect_timeout: 20
+    sleep: 5
+    delay: 5
+    timeout: 600
+
+- name: "Purge legacy Docker data"
+  become: yes
+  become_method: sudo
+  shell: |
+      rm -rf /var/lib/docker
+      rm -rf /var/lib/etcd
+      rm -rf /etc/kubernetes
+      rm -rf /etc/cni
+      rm -rf /var/lib/cni
+      rm -rf /var/run/calico
+      rm -rf /var/run/flannel
+      rm -rf /opt/cni
+      rm -rf /var/lib/kubelet
+      rm -rf /etc/ceph
+      /sbin/iptables -F
+      /sbin/iptables -F -t nat
+      /sbin/iptables -F -t mangle
+
+- name: Stat docker.service
+  become: yes
+  stat: path="{{ rancher_workspace }}/docker.service"
+  register: ws_docker_stat
+
+- name: Enable docker service
+  become: yes
+  become_method: sudo
+  shell: |
+      mv -n {{ rancher_workspace }}/docker.service /usr/lib/systemd/system/docker.service
+  when: ws_docker_stat.stat.exists
+
+- name: Start docker service
+  become: yes
+  systemd:
+      daemon_reload: yes
+      enabled: yes
+      state: started
+      name: docker
+
+#- name: "Enable & start docker service"
+#  become: yes
+#  become_method: sudo
+#  notify: 
+#    - enable docker
+#    - start docker

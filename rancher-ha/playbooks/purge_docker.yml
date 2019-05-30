@@ -1,0 +1,9 @@
+---
+
+## ansible-playbook -i "host01,host02", playbooks/purge_docker.yml ##
+
+- name: Purge Docker data
+  hosts: all
+  gather_facts: false
+  tasks:
+    - include: roles/cluster/tasks/purge_docker.yml 

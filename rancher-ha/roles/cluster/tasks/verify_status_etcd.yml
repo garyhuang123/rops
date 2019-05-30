@@ -1,0 +1,11 @@
+- name: Verify etcd status, tag=verify_etcd
+  tags:
+    - verify_etcd
+  wait_for:
+    host: "{{ item }}"
+    port: 2379
+    delay: 5
+    timeout: 10
+    msg: "Timeout waiting for 2379 to respond"
+  register: etcd_port_check
+  with_items: "{{ groups['master'] }}"

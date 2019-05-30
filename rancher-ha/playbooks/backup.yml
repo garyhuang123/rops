@@ -1,0 +1,22 @@
+---
+
+- name: Backup Etcd data
+  vars:
+    - timestamp: "{{ ansible_date_time.iso8601 }}"
+    - etcd_snapshot: "etcd_snapshot_{{ timestamp }}"
+    - pki_snapshot: "pki_snapshot_{{ timestamp }}"
+    - host_group: master
+    - rancher_cluster_config_filename: rancher_cluster.yml
+  hosts: "{{ controller_host | default('localhost') }}"
+  gather_facts: true
+  environment:
+    PATH: "{{ rancher_bin }}:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/opt/puppetlabs/bin"
+
+  roles:
+    - rke
+    - ssh_key
+    - rke_state
+    - kube_state
+
+  tasks:
+  - include: roles/cluster/tasks/backup_etcd.yml

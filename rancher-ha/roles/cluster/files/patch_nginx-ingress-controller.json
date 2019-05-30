@@ -1,0 +1,13 @@
+[  
+   {  
+      "op":"add",
+      "path":"/spec/template/spec/affinity/nodeAffinity/requiredDuringSchedulingIgnoredDuringExecution/nodeSelectorTerms/0/matchExpressions/1",
+      "value":{  
+         "key":"node-role.kubernetes.io/ing",
+         "operator":"In",
+         "values":[  
+            "true"
+         ]
+      }
+   }
+]

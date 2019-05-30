@@ -1,0 +1,22 @@
+---
+
+## ansible-playbook -i inventories/test/rancher.yml playbooks/upgrade.yml --ask-vault-pass ##
+
+- name: Upgrade Rancher Cluster
+  hosts: "{{ controller_host | default('localhost') }}"
+  gather_facts: false
+  vars:
+    - is_upgrade: true
+  environment:
+    PATH: "{{ rancher_bin }}:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/opt/puppetlabs/bin"
+
+  roles:
+    - rke_state
+    - kube_state
+    - rke
+    - helm
+    - image_tool
+    - kube_tool
+    - ssh_key
+
+- import_playbook: install.yml

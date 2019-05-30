@@ -1,0 +1,17 @@
+- import_role:
+    name: workspace
+
+# Create .ssh dir
+- name: Create ssh dirs
+  file:
+    path: "{{ item.path }}"
+    state: "{{ item.type }}"
+  with_items:
+    - { path: "~/.ssh/", type: directory }
+
+# Copy ssh keys to home
+- name: Copy ssh keys into ssh dir
+  copy:
+    src: "{{ ansible_ssh_private_key_file }}"
+    dest: ~/.ssh/
+    mode: 0600

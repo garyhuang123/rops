@@ -1,0 +1,11 @@
+- import_role:
+    name: workspace
+
+# Install rke command
+- name: Download rke command
+  get_url:
+    url:  https://github.com/rancher/rke/releases/download/{{ rke_version }}/rke_linux-amd64
+    dest: "{{ rancher_bin }}/rke"
+    mode: 0744
+
+

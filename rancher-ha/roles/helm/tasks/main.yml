@@ -1,0 +1,17 @@
+- import_role:
+    name: workspace
+
+# Install helm command
+- name: Download helm command
+  unarchive:
+    src: https://storage.googleapis.com/kubernetes-helm/helm-{{ helm_version }}-linux-amd64.tar.gz
+    dest: "{{ rancher_bin }}"
+    remote_src: yes
+    creates: "{{ rancher_bin }}/linux-amd64"
+
+- name: Copy helm into the bin dir
+  copy:
+    src: "{{ rancher_bin }}/linux-amd64/helm"
+    dest: "{{ rancher_bin }}/helm"
+    mode: 0744
+    remote_src: yes

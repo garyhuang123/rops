@@ -1,0 +1,19 @@
+# Create k8s home dirs
+- name: Create Kubernetes home dirs
+  file:
+    path: "{{ item.path }}"
+    state: "{{ item.type }}"
+  with_items:
+    - { path: "~/.kube/" , type: directory }
+
+# State if kubeconfig exists
+- name: Stat kubeconfig
+  stat: path={{ kube_config_file }}
+  register: last_kubeconfig
+
+- name: Copy the last kubeconfig to $userhome/.kube/config
+  copy:
+    src: "{{ kube_config_file }}"
+    dest: "~/.kube/config"
+  when: last_kubeconfig.stat.exists
+

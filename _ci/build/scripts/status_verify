@@ -1,0 +1,1 @@
+ansible-playbook -i inventories/test/rancher.yml playbooks/install.yml --tags "verify_k8s,verify_etcd" --ask-vault-pass

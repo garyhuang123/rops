@@ -1,0 +1,6 @@
+restore:
+    hosts:
+#        host01:
+master:
+    hosts:       
+#        host01:

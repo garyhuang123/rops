@@ -1,0 +1,56 @@
+---
+
+## ansible-playbook -e "restore_node_name=host01" -i inventories/test/rancher.yml playbooks/restore_node.yml --ask-vault-pass ##
+# vars:
+#   - restore_node_name
+
+- name: Check master host count
+  gather_facts: false
+  hosts: "{{ controller_host | default('localhost') }}"
+  vars:
+    - host_count: "{{ groups['master'] | length }}"
+  tasks:
+    - fail: 
+        msg: "The count of group[master] is {{ host_count }} < 3 exit, should use restore_all_nodes.yml instead"
+      when: host_count|int < 3
+    - fail:
+        msg: "restore_node_name:{{restore_node_name}} is not in master group"
+      when: restore_node_name not in groups['master']
+
+- hosts: master
+  gather_facts: false
+  roles:
+    - rancher
+  tasks:
+    - include: roles/cluster/tasks/purge_docker.yml
+      when: restore_node_name == inventory_hostname
+
+- name: Restore one node
+  hosts: "{{ controller_host | default('localhost') }}"
+  gather_facts: false
+  vars:
+    - host_group: master
+    - rancher_cluster_config_filename: rancher_cluster.yml
+  vars_files:
+    - group_vars/vault/docker_registry_secret
+  environment:
+    PATH: "{{ rancher_bin }}:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/opt/puppetlabs/bin"
+
+  roles:
+    - rke
+    - ssh_key
+    - rke_state
+    - kube_state
+
+  tasks:
+    - include: roles/cluster/tasks/install_k8s.yml
+    - include: roles/cluster/tasks/verify_status_k8s.yml
+
+- hosts: master
+  gather_facts: false
+  environment:
+    PATH: "{{ rancher_bin }}:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/opt/puppetlabs/bin"
+
+  tasks:
+    - include: roles/cluster/tasks/verify_status_etcd.yml
+

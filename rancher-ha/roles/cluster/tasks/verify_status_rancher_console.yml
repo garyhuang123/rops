@@ -1,0 +1,25 @@
+- name: Verify Rancher console url, tag=verify_console
+  tags:
+    - verify_console
+  uri:
+    url: "https://{{ rancher_hostname }}"
+    validate_certs: no
+    status_code: 200
+  retries: 30
+  delay: 5
+  register: result
+  until: ('status' in result) and (result.status == 200)
+
+#- name: Verify Rancher console status
+#  shell: |
+#      set -e
+#      pods=`kubectl get po -n cattle-system | grep rancher | wc -l`
+#      running_pods=`kubectl get po -n cattle-system | grep rancher | grep Running | wc -l`
+#      if [ "$pods" -ne "$running_pods" ]; then
+#          echo "has failed pods"
+#      else
+#          echo "done"
+#  register: result
+#  until: result.stdout.find("done") != -1
+#  retries: 10
+#  delay: 6

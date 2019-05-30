@@ -1,0 +1,32 @@
+---
+
+- name: Verify kubernetes node status, tag=verify_k8s,verify_k8s_node
+  tags:
+    - verify_k8s
+    - verify_k8s_node
+  shell: |
+      kubectl get node | grep NotReady | wc -l
+  register: result
+  until: result.stdout.find("0") != -1
+  retries: 10
+  delay: 6
+
+- name: Verify kube-system pods, tag=verify_k8s,verify_k8s_kube-system
+  tags:
+    - verify_k8s
+    - verify_k8s_kube-system
+  shell: |
+      set -e
+      pods=`kubectl get po -n {{ item }}|wc -l`
+      running_pods=`kubectl get po -n {{ item }}|grep Running`
+      if [ "$pods" -ne "$running_pods" ]; then
+          echo "has failed pods"
+      else
+          echo "done"
+      fi
+  loop:
+    - "kube-system"
+  register: result
+  until: result.stdout.find("done") != -1
+  retries: 10
+  delay: 6

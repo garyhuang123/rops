@@ -1,0 +1,34 @@
+---
+
+- name: Generate Kubernetes cluster.yml
+  template:
+    src: rancher_cluster.j2
+    dest: "{{ rancher_workspace }}/{{ rancher_cluster_config_filename }}"
+
+- name: Backup Etcd data, tag=backup_etcd
+  tags:
+    - backup_etcd
+  shell: rke etcd snapshot-save --name {{ etcd_snapshot }} --config rancher_cluster.yml
+  args:
+    chdir: "{{ rancher_workspace }}"
+
+- name: Backup pki file
+  copy:
+    src: /opt/rke/etcd-snapshots/pki.bundle.tar.gz
+    dest: "{{ rancher_snapshots }}/{{ pki_snapshot}}"
+    remote_src: yes
+
+- name: Backup pki file
+  copy:
+    src: /opt/rke/etcd-snapshots/{{ etcd_snapshot }}
+    dest: "{{ rancher_snapshots }}/{{ etcd_snapshot }}"
+    remote_src: yes
+
+- name: Print snapshot filepath
+  tags:
+    - backup_etcd
+  debug:
+    msg:
+      - "etcd snapshot file locates at: {{ rancher_snapshots }}/{{ etcd_snapshot }}"
+      - "pki snapshot file locates at: {{ rancher_snapshots }}/{{ pki_snapshot }}"
+

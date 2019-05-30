@@ -1,0 +1,14 @@
+---
+# Handler to handle docker tier notifications
+
+- name: stop docker
+  service: name=docker state=stopped
+
+- name: start docker
+  service: name=docker state=started
+
+- name: enable docker
+  service: name=docker enabled=yes
+
+- name: disable docker
+  service: name=docker enabled=no

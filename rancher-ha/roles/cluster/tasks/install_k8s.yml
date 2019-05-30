@@ -1,0 +1,34 @@
+---
+
+- name: Generate Kubernetes cluster.yml
+  template:
+    src: rancher_cluster.j2
+    dest: "{{ rancher_workspace }}/{{ rancher_cluster_config_filename }}"
+
+- name: Strike up Kubernetes cluster
+  shell:
+      rke up --config {{ rancher_cluster_config_filename }}
+  args:
+    chdir: "{{ rancher_workspace }}"
+
+- name: Ensures ~/.kube dir exists
+  file: path=~/.kube state=directory
+
+- name: Copy kubeconfig to home/.kube
+  copy:
+    src: "{{ rancher_workspace }}/kube_config_{{ rancher_cluster_config_filename }}"
+    dest: ~/.kube/config
+    remote_src: yes
+    backup: yes
+
+# - name: Stat kubeconfig
+#   stat: path={{ kube_config_file }}
+#   register: last_kubeconfig
+
+# - name: Copy kubeconfig to inventory for saving
+#   copy:
+#     src: "{{ rancher_workspace }}/kube_config_{{ rancher_cluster_config_filename }}"
+#     dest: "{{ kube_config_file }}"
+#     remote_src: yes
+#     backup: yes
+#   when: last_kubeconfig.stat.exists == False

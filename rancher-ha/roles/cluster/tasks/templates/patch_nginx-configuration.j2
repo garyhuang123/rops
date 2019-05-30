@@ -1,0 +1,13 @@
+[
+   {
+      "op":"add",
+      "path":"/data",
+      "value":{
+{% if nginx_use_proxy_protocol %}
+         "use-proxy-protocol":"true",
+{% endif %}
+         "proxy-body-size":"20m",
+         "proxy-read-timeout":"600"
+      }
+   }
+]

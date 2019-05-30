@@ -1,0 +1,66 @@
+---
+# vars:
+#   - restore_etcd_filename
+#   - restore_certs_filepath
+
+- name: Check restore host count
+  vars:
+    - host_count: "{{ groups['restore'] | length }}"
+  fail:
+    msg: "restore group host count = {{ host_count }}, should only = 1"
+  when: host_count|int != 1
+
+- name: Generate restore cluster config
+  vars:
+    - host_group: restore
+  template:
+    src: rancher_cluster.j2
+    dest: "{{ rancher_workspace }}/restore_cluster.yml"
+
+- name: Copy cluster certs snapshot to /opt/rke/etcd-snapshots/
+  become: yes
+  become_method: sudo
+  copy:
+    src: "{{ restore_certs_filepath }}"
+    dest: /opt/rke/etcd-snapshots/pki.bundle.tar.gz
+    remote_src: yes
+
+- name: Copy etcd snapshot to /opt/rke/etcd-snapshots/
+  become: yes
+  become_method: sudo
+  copy:
+    src: "{{ restore_etcd_filepath }}"
+    dest: /opt/rke/etcd-snapshots/{{ restore_etcd_filepath | basename }}
+    remote_src: yes
+
+- name: Restore etcd data
+  vars:
+    - restore_etcd_filename: "{{ restore_etcd_filepath | basename }}"
+  shell: |
+      rke etcd snapshot-restore --name {{ restore_etcd_filename }} --config restore_cluster.yml
+  args:
+    chdir: "{{ rancher_workspace }}"
+
+- name: Ensures /etc/kubernetes/ssl dir exists
+  file: path=/etc/kubernetes/ssl state=directory
+  become: yes
+  become_method: sudo
+
+- name: Copy certs into /etc/kubernetes/ssl
+  become: yes
+  become_method: sudo
+  shell: cp -rf /etc/kubernetes/.tmp/* /etc/kubernetes/ssl/
+
+- name: Wait for etcd container up
+  shell: |
+      docker ps -a --filter status=running | grep coreos-etcd | wc -l
+  register: result
+  until: result.stdout.find("1") != -1
+  retries: 5
+  delay: 6
+
+- msg: Bring up one node
+  vars:
+    - host_group: master
+    - rancher_cluster_config_filename: restore_cluster.yml
+  include: roles/cluster/tasks/install_k8s.yml

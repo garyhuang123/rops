@@ -1,0 +1,18 @@
+nodes:
+{% for host in groups[host_group] %}
+- address: {{ host }}           # air gap node external IP
+  user: {{ docker_op_user }}
+  role: [ "controlplane", "etcd", "worker" ]
+{% endfor %}
+ignore_docker_version: true
+private_registries:
+- url: {{ docker_registry }}/infra
+  user: {{ vault_docker_registry_user }}
+  password: {{ vault_docker_registry_password }}
+  is_default: true
+services:
+  etcd:
+    snapshot: true
+    retention: "24h"
+    creation: "6h0s"
+
