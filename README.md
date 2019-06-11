@@ -8,7 +8,7 @@ Currently this installs Rancher v2.2.2
 ### How to Run
 ---------------------------------------------
 
-#### Install Rancher High-Available Cluster
+#### Install Rancher High-Availability Cluster
 Generate ssh keys for non-password login to the hosts inside hosts.yml
 
 Prepare install.yml, hosts.yml, then run
@@ -45,3 +45,4 @@ docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
 ```
 sh build.sh
 ```
+The default local image name is rancher-ops
