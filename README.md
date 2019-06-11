@@ -1,4 +1,4 @@
-## Rancher-Ops
+## ROPS
 ------------------------------------------------------------------------------
 A guest-os agnostic tool to strike up Rancher HA cluster in a lightning way.
 
@@ -18,7 +18,7 @@ docker run --rm -v `pwd`:/outputs \
                 -e CONFIG="$(cat config/install.yml)" \
                 -e HOSTS="$(cat config/hosts.yml)" \
                 -e SSH_KEY="$(cat id_rsa)" \
-                garyhuang123/rancher-ops
+                garyhuang123/rops:v0.1.0
 ```
 #### Upgrade Existing Cluster & Rancher
 Generate ssh keys for non-password login to the hosts inside hosts.yml
@@ -31,7 +31,7 @@ docker run --rm -e ACTION=upgrade_rancher \
                 -e SSH_KEY="$(cat id_rsa)" \
                 -e KUBE_CONFIG="$(cat config/kube_config_rancher_cluster.yml)" \
                 -e RKE_STATE="$(cat config/rancher_cluster.rkestate)" \
-                garyhuang123/rancher-ops
+                garyhuang123/rops:v0.1.0
 ```
 #### Pull Images into Private Registry
 Prepare pull_image.yml, then run
@@ -39,7 +39,7 @@ Prepare pull_image.yml, then run
 docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
                 -e ACTION=pull_image \
                 -e CONFIG="$(cat config/pull_image.yml)" \
-                garyhuang123/rancher-ops
+                garyhuang123/rops:v0.1.0
 ```
 ### Build Your Own Image if Needed
 ```
