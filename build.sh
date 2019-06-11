@@ -1,1 +1,1 @@
-docker build -t rancher-ops .
+docker build -t rops .
