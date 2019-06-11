@@ -2,6 +2,9 @@
 ------------------------------------------------------------------------------
 A guest-os agnostic tool to strike up Rancher HA cluster in a lightning way.
 
+## Version
+Currently this installs Rancher v2.2.2
+
 ### How to Run
 ---------------------------------------------
 
