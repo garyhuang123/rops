@@ -9,7 +9,9 @@ Currently this installs Rancher v2.2.2
 ---------------------------------------------
 
 #### Install Rancher High-Available Cluster
-Generate your own ssh keys for non-password login to the hosts inside hosts.yml
+Generate ssh keys for non-password login to the hosts inside hosts.yml
+
+Prepare install.yml, hosts.yml, then run
 ```
 docker run --rm -v `pwd`:/outputs \
                 -e ACTION=install_rancher \
@@ -19,7 +21,9 @@ docker run --rm -v `pwd`:/outputs \
                 garyhuang123/rancher-ops
 ```
 #### Upgrade Existing Cluster & Rancher
-Generate your own ssh keys for non-password login to the hosts inside hosts.yml
+Generate ssh keys for non-password login to the hosts inside hosts.yml
+
+Prepare upgrade.yml, hosts.yml, kube_config_rancher_cluster.yml, rancher_cluster.rkestate, then run
 ```
 docker run --rm -e ACTION=upgrade_rancher \
                 -e CONFIG="$(cat config/upgrade.yml)" \
@@ -30,7 +34,7 @@ docker run --rm -e ACTION=upgrade_rancher \
                 garyhuang123/rancher-ops
 ```
 #### Pull Images into Private Registry
-
+Prepare pull_image.yml, then run
 ```
 docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
                 -e ACTION=pull_image \
