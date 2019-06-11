@@ -5,10 +5,10 @@ A guest-os agnostic tool to strike up Rancher HA cluster in a lightning way.
 ## Version
 Currently this installs Rancher v2.2.2
 
-### How to Run
+## How to Run
 ---------------------------------------------
 
-#### Install Rancher High-Availability Cluster
+### Install Rancher High-Availability Cluster
 Generate ssh keys for non-password login to the hosts inside hosts.yml
 
 Prepare install.yml, hosts.yml, then run
@@ -20,7 +20,9 @@ docker run --rm -v `pwd`:/outputs \
                 -e SSH_KEY="$(cat id_rsa)" \
                 garyhuang123/rops:v0.1.0
 ```
-#### Upgrade Existing Cluster & Rancher
+Note: /outputs is used internally to save the cluster's state files, including kubeconfig, rkestate.
+
+### Upgrade Existing Cluster & Rancher
 Generate ssh keys for non-password login to the hosts inside hosts.yml
 
 Prepare upgrade.yml, hosts.yml, kube_config_rancher_cluster.yml, rancher_cluster.rkestate, then run
@@ -33,7 +35,8 @@ docker run --rm -e ACTION=upgrade_rancher \
                 -e RKE_STATE="$(cat config/rancher_cluster.rkestate)" \
                 garyhuang123/rops:v0.1.0
 ```
-#### Pull Images into Private Registry
+
+### Pull Images into Private Registry
 Prepare pull_image.yml, then run
 ```
 docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
@@ -41,8 +44,9 @@ docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
                 -e CONFIG="$(cat config/pull_image.yml)" \
                 garyhuang123/rops:v0.1.0
 ```
-### Build Your Own Image if Needed
+
+## Build Your Own Image if Needed
 ```
 sh build.sh
 ```
-The default local image name is rancher-ops
+The default local image name is rops
