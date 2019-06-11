@@ -1,5 +1,0 @@
-
-rancher_hostname: host01.xxx.com
-ansible_ssh_private_key_file: ssh/test/id_rsa
-kube_config_file: "../inventories/test/files/kube_config/kube_config_rancher_cluster.yml"
-cluster_rkestate_file: "../inventories/test/files/cluster_rkestate/rancher_cluster.rkestate"

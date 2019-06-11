@@ -25,10 +25,13 @@
 #   stat: path={{ kube_config_file }}
 #   register: last_kubeconfig
 
-# - name: Copy kubeconfig to inventory for saving
-#   copy:
-#     src: "{{ rancher_workspace }}/kube_config_{{ rancher_cluster_config_filename }}"
-#     dest: "{{ kube_config_file }}"
-#     remote_src: yes
-#     backup: yes
+- name: Copy kubeconfig to inventory for saving
+  copy:
+    src: "{{ item.path }}"
+    dest: /outputs
+    remote_src: yes
+    backup: yes
+  with_items:
+    - { path: "{{ rancher_workspace }}/kube_config_{{ rancher_cluster_config_filename }}" }
+    - { path: "{{ rancher_workspace }}/{{ rancher_cluster_config_prefix }}.rkestate" }
 #   when: last_kubeconfig.stat.exists == False

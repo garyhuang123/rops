@@ -1,1 +1,0 @@
-ansible-playbook -i inventories/test/rancher.yml playbooks/upgrade.yml --ask-vault-pass

@@ -8,3 +8,6 @@
 */*/*.swp
 */*/*/*.swp
 */*/*/*/*.swp
+id_rsa
+id_rsa.pub
+config_test/*

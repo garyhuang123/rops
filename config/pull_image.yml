@@ -1,0 +1,7 @@
+docker_user: rancher
+
+# If want to use images from private registry
+docker_registry:
+vault_docker_registry_user:
+vault_docker_registry_password:
+

@@ -1,1 +1,0 @@
-ansible-playbook playbooks/pull_images.yml --ask-vault-pass

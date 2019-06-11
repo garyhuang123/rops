@@ -16,7 +16,7 @@
       helm fetch stable/cert-manager  --version {{ cert_manager_version }}
       helm template ./cert-manager-*.tgz --output-dir . \
           --name cert-manager --namespace kube-system \
-          --set image.repository={{ docker_registry }}/infra/quay.io/jetstack/cert-manager-controller
+          --set image.repository={{ default_docker_registry }}/quay.io/jetstack/cert-manager-controller
       kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.6/deploy/manifests/00-crds.yaml
       kubectl label --overwrite namespace kube-system certmanager.k8s.io/disable-validation=true
       kubectl -n kube-system apply -R -f ./cert-manager
@@ -38,7 +38,7 @@
       helm fetch {{ rancher_chart_repo }}/rancher --version {{ rancher_chart_version }}
       helm template rancher-*.tgz --output-dir . --is-upgrade \
           --name rancher --namespace cattle-system \
-          --set hostname={{ rancher_hostname }} --set rancherImage={{ docker_registry }}/infra/rancher/rancher
+          --set hostname={{ rancher_hostname }} --set rancherImage={{ default_docker_registry }}/rancher/rancher
       kubectl -n cattle-system apply -R -f rancher
   args:
     chdir: "{{ rancher_workspace }}"

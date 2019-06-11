@@ -1,1 +1,0 @@
-ansible-playbook -i inventories/test/rancher.yml playbooks/install.yml --ask-vault-pass

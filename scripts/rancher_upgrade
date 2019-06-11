@@ -1,0 +1,4 @@
+set -e
+echo "$KUBE_CONFIG" > inventories/kubeconfig
+echo "$RKE_STATE" > inventories/rkestate
+ansible-playbook -i inventories/hosts.yml playbooks/upgrade.yml

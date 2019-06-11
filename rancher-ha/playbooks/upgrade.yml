@@ -11,12 +11,8 @@
     PATH: "{{ rancher_bin }}:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/opt/puppetlabs/bin"
 
   roles:
+    - workspace
     - rke_state
     - kube_state
-    - rke
-    - helm
-    - image_tool
-    - kube_tool
-    - ssh_key
 
 - import_playbook: install.yml

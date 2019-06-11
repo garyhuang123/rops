@@ -1,0 +1,39 @@
+#!/bin/sh
+set -e
+
+# create ssh key file
+echo "$SSH_KEY" > ssh/id_rsa
+# chmod 400 ssh/id_rsa
+
+# generate ansible variable file
+cat ansible.yml > group_vars/all.yml
+echo "$CONFIG" >> group_vars/all.yml
+
+# generate hosts file
+echo "$HOSTS" > inventories/hosts.yml
+
+# create soft links
+cd playbooks
+ln -s ../group_vars group_vars
+ln -s ../roles roles
+ln -s ../ssh ssh
+cd -
+
+case "$ACTION" in
+pull_image)
+   image_pull
+;;
+install_rancher)
+   rancher_install
+;;
+upgrade_rancher)
+   rancher_upgrade
+;;
+verify_status)
+   status_verify
+;;
+*)
+   echo "Unsupported Action!"
+   exit 1
+esac
+

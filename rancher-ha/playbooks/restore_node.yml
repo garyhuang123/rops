@@ -31,8 +31,6 @@
   vars:
     - host_group: master
     - rancher_cluster_config_filename: rancher_cluster.yml
-  vars_files:
-    - group_vars/vault/docker_registry_secret
   environment:
     PATH: "{{ rancher_bin }}:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/opt/puppetlabs/bin"
 
