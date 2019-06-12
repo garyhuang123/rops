@@ -1,4 +1,4 @@
-## ROPS
+## Rops
 ------------------------------------------------------------------------------
 A guest-os agnostic tool to strike up Rancher HA cluster in a lightning way.
 
@@ -11,7 +11,7 @@ Currently this installs Rancher v2.2.2
 ### Install Rancher High-Availability Cluster
 Generate ssh keys for non-password login to the hosts inside hosts.yml
 
-Prepare install.yml, hosts.yml, then run
+Prepare install.yml, hosts.yml, referring to the examples in [config](https://github.com/garyhuang123/rops/tree/master/config), then run
 ```
 docker run --rm -v `pwd`:/outputs \
                 -e ACTION=install_rancher \
@@ -25,7 +25,7 @@ Note: /outputs is used internally to save the cluster's state files, including k
 ### Upgrade Existing Cluster & Rancher
 Generate ssh keys for non-password login to the hosts inside hosts.yml
 
-Prepare upgrade.yml, hosts.yml, kube_config_rancher_cluster.yml, rancher_cluster.rkestate, then run
+Prepare upgrade.yml, hosts.yml, kube_config_rancher_cluster.yml, rancher_cluster.rkestate, referring to the examples in [config](https://github.com/garyhuang123/rops/tree/master/config), then run
 ```
 docker run --rm -e ACTION=upgrade_rancher \
                 -e CONFIG="$(cat config/upgrade.yml)" \
@@ -37,7 +37,7 @@ docker run --rm -e ACTION=upgrade_rancher \
 ```
 
 ### Pull Images into Private Registry
-Prepare pull_image.yml, then run
+Prepare pull_image.yml, referring to the examples in [config](https://github.com/garyhuang123/rops/tree/master/config), then run
 ```
 docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
                 -e ACTION=pull_image \
